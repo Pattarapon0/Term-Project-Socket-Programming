@@ -6,7 +6,6 @@ const Conversation = ({ conversation, lastIdx}) => {
 	const isSelected = selectedConversation?._id === conversation._id;
 	const { onlineUsers } = useSocketContext();
 	const isOnline = onlineUsers.includes(conversation._id);
-
 	return (
 		<>{(isOnline || chat==0) &&
 			<div
@@ -26,9 +25,10 @@ const Conversation = ({ conversation, lastIdx}) => {
 						<p className='font-bold text-gray-200'>{conversation.fullName}</p>
 					</div>
 				</div>
-			</div>}
-
-			{!lastIdx && <div className='divider my-0 py-0 h-1' />} 
+				{!lastIdx && <div className='divider my-0 py-0 h-1' />} 
+			</div>
+			
+			}
 		</>
 	);
 };

@@ -3,36 +3,59 @@ import Conversation from "./Conversation";
 import useConversation from "../../store/useConversation";
 import toast from "react-hot-toast";
 import useCreateGroup from "../../hooks/useCreateGroup";
-import { useState } from "react";
+import { useState,useEffect} from "react";
+import { useSocketContext } from "../../context/SocketContext";
 const Conversations = () => {
     const { loading, conversations, setConversations } = useGetConversations();
     const { chat } = useConversation();
     const [inputs, setInputs] = useState({ fullName: "" });
     const { createloading, createGroup } = useCreateGroup();
-
+    const useListenGroup = () => {
+        const { socket } = useSocketContext();
+        useEffect(() => {
+            socket?.on("newGroup", (newGroup) => {
+                setConversations(prev => {
+                    const updated = [...prev];
+                    const index = chat ? 0 : 1;
+                    const existingIndex = updated[index].findIndex(group => group._id === newGroup._id);
+                
+                    if (existingIndex !== -1) {
+                        updated[index][existingIndex] = newGroup;
+                    } else {
+                        updated[index].push(newGroup);
+                    }
+                
+                    return updated;
+                });
+                
+            });
+            console.log("555")
+            return () => socket?.off("newGroup");
+        }, [socket, setConversations, conversations]);
+    };
     const handleSubmit = async (event) => {
         event.preventDefault(); 
         const newGroup = await createGroup(inputs); 
         if (newGroup) {
-			setConversations(prev => {
-				const updated = [...prev];
-				const index = chat ? 0 : 1;
-				const existingIndex = updated[index].findIndex(group => group._id === newGroup._id);
+			//setConversations(prev => {
+			//	const updated = [...prev];
+			//	const index = chat ? 0 : 1;
+			//	const existingIndex = updated[index].findIndex(group => group._id === newGroup._id);
 			
-				if (existingIndex !== -1) {
-					updated[index][existingIndex] = newGroup;
-				} else {
-					updated[index].push(newGroup);
-				}
+			//	if (existingIndex !== -1) {
+			//		updated[index][existingIndex] = newGroup;
+			//	} else {
+			//		updated[index].push(newGroup);
+			//	}
 			
-				return updated;
-			});
+			//	return updated;
+			//});
 			
            setInputs({ fullName: "" }); // Reset input field
            toast.success("Group created successfully!");
        }
     };
-
+    useListenGroup();
     return (
         <>
             <div className='py-2 flex flex-col overflow-auto w-full'>

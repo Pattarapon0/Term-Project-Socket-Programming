@@ -140,17 +140,19 @@ app.get("/api/messages/:id", protectRoute, async (req, res) => {
 			});
 			if(!!gro){
 				id=receiverId
-			}
-            if (!conversation) {
+				let gropo=await Conversation.findOne({
+					participants: { $all: [receiverId] },
+				});
 				if(!!gropo){
 					gropo.participants.push(senderId)
 					conversation=gropo
 					id=receiverId
 				}
-				else {
+			}
+            if (!conversation) {
 				conversation = await Conversation.create({
                     participants: [senderId, receiverId],
-                });}
+                });
             }
 			
             const newMessage = new Message({
@@ -206,6 +208,7 @@ app.get("/api/messages/:id", protectRoute, async (req, res) => {
 				fullName: fullName,
 				member:[],
 				});
+			io.emit("newGroup",group);
             res.status(201).json(group);
         } catch (error) {
             console.log("Error in sendMessage controller: ", error.message);

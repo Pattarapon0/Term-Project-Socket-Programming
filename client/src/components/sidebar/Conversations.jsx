@@ -3,13 +3,19 @@ import Conversation from "./Conversation";
 import useConversation from "../../store/useConversation";
 import toast from "react-hot-toast";
 import useCreateGroup from "../../hooks/useCreateGroup";
-import { useState,useEffect} from "react";
+import { useState,useEffect, useRef} from "react";
 import { useSocketContext } from "../../context/SocketContext";
 const Conversations = () => {
     const { loading, conversations, setConversations } = useGetConversations();
     const { chat } = useConversation();
     const [inputs, setInputs] = useState({ fullName: "" });
     const { createloading, createGroup } = useCreateGroup();
+    const lastChateRef = useRef();
+    useEffect(() => {
+		setTimeout(() => {
+			lastChateRef.current?.scrollIntoView({ behavior: "smooth" });
+		}, 100);
+	}, [conversations]);
     const useListenGroup = () => {
         const { socket } = useSocketContext();
         useEffect(() => {
@@ -30,7 +36,7 @@ const Conversations = () => {
                 
             });
             return () => socket?.off("newGroup");
-        }, [socket, setConversations, conversations]);
+        }, [socket, setConversations, conversations,createloading]);
     };
     const handleSubmit = async (event) => {
         event.preventDefault(); 

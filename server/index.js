@@ -138,15 +138,17 @@ app.get("/api/messages/:id", protectRoute, async (req, res) => {
 			let gro=await Group.findOne({
 				_id: { $all: [receiverId] },
 			});
-			if(!!gro){
+			if(gro){
 				id=receiverId
 				let gropo=await Conversation.findOne({
 					participants: { $all: [receiverId] },
 				});
-				if(!!gropo){
-					gropo.participants.push(senderId)
-					conversation=gropo
-					id=receiverId
+				if(gropo){
+					if (!gropo.participants.includes(senderId)) {
+						gropo.participants.push(senderId);
+						await gropo.save(); 
+						conversation=gropo
+					}
 				}
 			}
             if (!conversation) {
@@ -154,11 +156,15 @@ app.get("/api/messages/:id", protectRoute, async (req, res) => {
                     participants: [senderId, receiverId],
                 });
             }
-			
+			let imgpic=  await User.findOne({
+				_id: [senderId]
+			}).select('profilePic -_id').exec()
+			const messagePic=imgpic.profilePic
             const newMessage = new Message({
                 senderId,
                 receiverId,
                 message,
+				messagePic,
             });
     
             if (newMessage) {
@@ -200,7 +206,7 @@ app.get("/api/messages/:id", protectRoute, async (req, res) => {
 			res.status(500).json({ error: "Internal server error" });
 		}
 	})	
-	app.post('/api/creategroup' ,async (req, res) => {
+	app.post('/api/creategroup',protectRoute,async (req, res) => {
 		try {
             const {fullName} = req.body;
 			console.log(fullName)
@@ -215,7 +221,8 @@ app.get("/api/messages/:id", protectRoute, async (req, res) => {
             res.status(500).json({ error: "Internal server error" });
         }}
 		
-	);	
+	);
+
 server.listen(PORT,() => {
     connectToDB();
     console.log(`${PORT}`)});

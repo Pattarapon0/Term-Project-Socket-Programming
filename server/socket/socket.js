@@ -7,7 +7,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
 	cors: {
-		origin: [process.env.BACKEND_URL],
+		origin: ["http://localhost:3500"],
 		methods: ["GET", "POST"],
 	},
 });

@@ -16,6 +16,10 @@ const messageSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 		},
+		messagePic: {
+			type: String,
+			default: "",
+		}
 		// createdAt, updatedAt
 	},
 	{ timestamps: true }

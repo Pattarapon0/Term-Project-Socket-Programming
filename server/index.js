@@ -173,7 +173,7 @@ app.get("/api/messages/:id", protectRoute, async (req, res) => {
     
             // await conversation.save();
             // await newMessage.save();
-			console.log()
+		
             // this will run in parallel
 			await Promise.all([conversation.save(), newMessage.save()]);
 			conversation.participants.forEach(participantId => {
